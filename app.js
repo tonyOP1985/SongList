@@ -118,6 +118,13 @@ app.put('/songs/:id', (req, res) => {
   })
 })
 
+app.delete('/songs/:id', (req, res) => {
+  Song.remove({_id: req.params.id})
+    .then(() => {
+      res.redirect('/songs')
+    })
+})
+
 const port = 5000
 
 app.listen(port, () => {
