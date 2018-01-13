@@ -1,0 +1,19 @@
+<div class="card card-body">
+  <h3>Edit Song</h3>
+  <form action="/songs/{{song.id}}?_method=PUT" method="post">
+    <input type="hidden" name="_method" value="PUT">
+    <div class="form-group">
+      <label for="title">Title</label>
+      <input type="text" class="form-control" name="title" value="{{song.title}}" required>
+    </div>
+    <div class="form-group">
+      <label for="title">Artist</label>
+      <input type="text" class="form-control" name="artist" value="{{song.artist}}" required>
+    </div>
+    <div class="form-group">
+      <label for="title">Key</label>
+      <input type="text" class="form-control" name="songKey" value="{{song.songKey}}" required>
+    </div>
+    <button class="btn btn-primary">Submit</button>
+  </form>
+</div>

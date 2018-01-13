@@ -1,0 +1,10 @@
+{{#each songs}}
+  <div class="card card-body">
+    <h4>{{title}}</h4>
+    <p><strong> Artist: </strong> {{artist}}</p>
+    <p><strong>Key: </strong> {{songKey}}</p>
+    <a class="btn btn-dark" href="/songs/edit/{{id}}">Edit</a>
+  </div>
+{{else}}
+  <p>No songs listed</p>
+{{/each}}
