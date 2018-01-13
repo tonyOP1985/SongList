@@ -1,6 +1,7 @@
 const express = require('express')
 const exphbs = require('express-handlebars')
 const mongoose = require('mongoose')
+const bodyParser = require('body-parser')
 
 
 const app = express()
@@ -22,6 +23,10 @@ const Song = mongoose.model('songs')
 app.engine('handlebars', exphbs({ defaultLayout: 'main' }))
 app.set('view engine', 'handlebars')
 
+// Body-Parser Middleware
+app.use(bodyParser.urlencoded({ extended: false }))
+app.use(bodyParser.json())
+
 //index route
 app.get('/', (req, res) => {
   const title = 'Welcome'
@@ -37,6 +42,27 @@ app.get('/about', (req, res) => {
 // Add song form
 app.get('/songs/add', (req, res) => {
   res.render('songs/add')
+})
+
+// Process Form
+app.post('/songs', (req, res) => {
+  let errors = []
+
+  if (!req.body.title) errors.push({text: 'Please add a title'})
+  if (!req.body.artist) errors.push({text: 'Please add an artist'})
+  if (!req.body.key) errors.push({text: 'Please add a key'})
+
+  if (errors.length) {
+    res.render('songs/add', {
+      errors: errors,
+      title: req.body.title,
+      artist: req.body.artist,
+      key: req.body.key
+    })
+  } 
+  else {
+    res.send('passed')
+  }
 })
 
 const port = 5000
