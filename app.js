@@ -2,6 +2,7 @@ const express = require('express')
 const exphbs = require('express-handlebars')
 const mongoose = require('mongoose')
 
+
 const app = express()
 
 // Map global promise - get rid of warning
@@ -12,6 +13,10 @@ mongoose.connect('mongodb://localhost/songlist-dev', {
 })
 .then(() => console.log('MongoDB connected'))
 .catch(err => console.log(err))
+
+// Load song model 
+require('./models/Songs')
+const Song = mongoose.model('songs')
 
 // Handlebars middleware
 app.engine('handlebars', exphbs({ defaultLayout: 'main' }))
@@ -27,6 +32,11 @@ app.get('/', (req, res) => {
 
 app.get('/about', (req, res) => {
   res.render('about')
+})
+
+// Add song form
+app.get('/songs/add', (req, res) => {
+  res.render('songs/add')
 })
 
 const port = 5000
