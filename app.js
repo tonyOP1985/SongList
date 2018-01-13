@@ -3,6 +3,8 @@ const exphbs = require('express-handlebars')
 const mongoose = require('mongoose')
 const bodyParser = require('body-parser')
 const methodOverride = require('method-override')
+const flash = require('connect-flash')
+const session = require('express-session')
 
 const app = express()
 
@@ -29,6 +31,24 @@ app.use(bodyParser.json())
 
 // Method Overrider middleware
 app.use(methodOverride('_method'))
+
+// Express-Session Middleware
+app.use(session({
+  secret: 'secret',
+  resave: true,
+  saveUninitialized: true
+}))
+
+// Connect-Flash Middleware
+app.use(flash())
+
+//Global variables
+app.use((req, res, next) => {
+  res.locals.success_msg = req.flash('success_msg')
+  res.locals.error_msg = req.flash('error_msg')
+  res.locals.error = req.flash('error')
+  next()
+})
 
 //index route
 app.get('/', (req, res) => {
@@ -95,6 +115,7 @@ app.post('/songs', (req, res) => {
     new Song(newUser)
       .save()
       .then(song => {
+        req.flash('success_msg', 'Song added')
         res.redirect('/songs')
       })
   }
@@ -113,14 +134,17 @@ app.put('/songs/:id', (req, res) => {
 
     song.save()
       .then(song => {
+        req.flash('success_msg', 'Song updated')
         res.redirect('/songs')
       })
   })
 })
 
+// Delete Song
 app.delete('/songs/:id', (req, res) => {
   Song.remove({_id: req.params.id})
     .then(() => {
+      req.flash('success_msg', 'Song removed')
       res.redirect('/songs')
     })
 })
