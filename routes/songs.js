@@ -1,6 +1,7 @@
 const express = require('express')
 const mongoose = require('mongoose')
 const router = express.Router()
+const {ensureAuthenticated} = require('../helpers/auth')
 
 // Load song model 
 require('../models/Songs')
@@ -8,8 +9,8 @@ const Song = mongoose.model('songs')
 
 // /songs urls
 // song index page
-router.get('/', (req, res) => {
-  Song.find({})
+router.get('/', ensureAuthenticated, (req, res) => {
+  Song.find({user: req.user.id})
     .sort({ date: 'desc' })
     .then(songs => {
       res.render('songs/index', {
@@ -19,24 +20,30 @@ router.get('/', (req, res) => {
 })
 
 // Add song form
-router.get('/add', (req, res) => {
+router.get('/add', ensureAuthenticated, (req, res) => {
   res.render('songs/add')
 })
 
 // Edit Song form
-router.get('/edit/:id', (req, res) => {
+router.get('/edit/:id', ensureAuthenticated, (req, res) => {
   Song.findOne({
     _id: req.params.id
   })
     .then(song => {
-      res.render('songs/edit', {
-        song: song
-      })
+      if (song.user != req.user.id) {
+        req.flash('error_msg', 'Not authorized')
+        res.redirect('/songs')
+      }
+      else {
+        res.render('songs/edit', {
+          song: song
+        })
+      }
     })
 })
 
 // Process Form
-router.post('/', (req, res) => {
+router.post('/', ensureAuthenticated, (req, res) => {
   let errors = []
 
   if (!req.body.title) errors.push({ text: 'Please add a title' })
@@ -55,7 +62,8 @@ router.post('/', (req, res) => {
     const newUser = {
       title: req.body.title,
       artist: req.body.artist,
-      songKey: req.body.songKey
+      songKey: req.body.songKey,
+      user: req.user.id
     }
     new Song(newUser)
       .save()
@@ -67,7 +75,7 @@ router.post('/', (req, res) => {
 })
 
 // Edit form process
-router.put('/:id', (req, res) => {
+router.put('/:id', ensureAuthenticated, (req, res) => {
   Song.findOne({
     _id: req.params.id
   })
@@ -86,7 +94,7 @@ router.put('/:id', (req, res) => {
 })
 
 // Delete Song
-router.delete('/:id', (req, res) => {
+router.delete('/:id', ensureAuthenticated, (req, res) => {
   Song.remove({ _id: req.params.id })
     .then(() => {
       req.flash('success_msg', 'Song removed')
